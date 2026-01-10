@@ -1,0 +1,121 @@
+.main-sider {
+    background: linear-gradient(180deg, #001529 0%, #002140 100%) !important;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.logo-section {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 12px;
+}
+
+.logo-icon-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.main-menu {
+    margin-top: 16px;
+}
+
+.main-menu .ant-menu-item {
+    margin: 4px 8px;
+    border-radius: 8px;
+    height: 44px;
+    line-height: 44px;
+    transition: all 0.3s ease;
+}
+
+.main-menu .ant-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.main-menu .ant-menu-item-selected {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.main-header {
+    background: #fff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.trigger {
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 0 16px;
+}
+
+.trigger:hover {
+    color: #1890ff;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-icon {
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.header-icon:hover {
+    color: #1890ff;
+}
+
+.user-info {
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.user-info:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.main-content {
+    margin: 24px;
+    padding: 24px;
+    background: transparent;
+    min-height: 280px;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin: 16px;
+        padding: 16px;
+    }
+
+    .main-header {
+        padding: 0 16px;
+    }
+}

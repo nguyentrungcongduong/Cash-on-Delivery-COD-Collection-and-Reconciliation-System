@@ -235,6 +235,39 @@ Shipper chuyển tiền → Shop xác nhận → Hoàn tất đối soát
 
 *(Sẽ được cập nhật sau khi hoàn thiện)*
 
+## 🧪 Phân tích & Giải pháp cho các Case khó (Advanced Scenarios)
+
+Dưới đây là các kịch bản nâng cao (Edge Cases) thường gặp trong hệ thống COD và giải pháp đề xuất (đang trong lộ trình phát triển):
+
+### 1. Trả hàng một phần (Partial Returns)
+- **Tình huống**: Khách đặt 3 món, shipper giao đến nơi nhưng khách chỉ lấy 1 món, trả lại 2 món.
+- **Hiện tại (MVP)**: Shipper đánh dấu "Giao thất bại" (Lý do: Khách đổi ý), sau đó tạo đơn mới cho món khách lấy.
+- **Giải pháp đề xuất**: Nâng cấp Mobile App cho phép Shipper sửa đơn hàng tại chỗ -> Tự động tính lại COD -> Cập nhật kho hàng real-time.
+
+### 2. Đối soát đồng thời (Concurrent Settlement)
+- **Tình huống**: Admin bấm "Xác nhận đối soát" đúng lúc Shop đang cập nhật số tài khoản ngân hàng mới.
+- **Rủi ro**: Tiền có thể bị chuyển vào STK cũ hoặc gây lỗi giao dịch.
+- **Giải pháp đề xuất**:
+  - **Optimistic Locking**: Sử dụng `@Version` trong database để phát hiện thay đổi.
+  - **Snapshot**: Khi tạo phiên đối soát, hệ thống lưu cứng (snapshot) thông tin ngân hàng tại thời điểm đó, mọi thay đổi sau đó chỉ áp dụng cho phiên sau.
+
+### 3. Mất mạng khi cập nhật (Network Failure)
+- **Tình huống**: Shipper bấm "Đã giao hàng" nhưng mạng 4G bị mất, server chưa nhận được tín hiệu nhưng App đã hiện thành công.
+- **Rủi ro**: Lệch trạng thái giữa Shipper (đã giao) và Admin (chưa giao).
+- **Giải pháp đề xuất**:
+  - **Offline First**: App lưu trạng thái vào local database (SQLite/Realm).
+  - **Background Sync**: Khi có mạng, App tự động đẩy queue các request lên server (sử dụng WorkManager/Queue).
+  - **Idempotency**: Server đảm bảo xử lý request trùng lặp an toàn.
+
+### 4. Vượt hạn mức nợ (Shipper Max Debt)
+- **Tình huống**: Shipper thu giữ quá nhiều tiền mặt (ví dụ: > 10 triệu) nhưng chưa nộp về công ty.
+- **Rủi ro**: Shipper có thể bỏ trốn hoặc làm mất tiền.
+- **Giải pháp đề xuất**:
+  - **Hard Limit**: Hệ thống tự động khóa không cho Shipper nhận đơn mới khi ví tiền mặt > Hạn mức cho phép.
+  - **Real-time Alert**: Gửi cảnh báo SMS/Zalo cho Admin vận hành.
+
+---
+
 ## 🧪 Testing
 
 ### Backend Tests

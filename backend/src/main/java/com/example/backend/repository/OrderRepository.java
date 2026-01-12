@@ -14,5 +14,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByShipperAndStatusIn(User shipper, List<com.example.backend.model.OrderStatus> statuses);
 
+    List<Order> findByShopAndStatusAndDeliveredAtBetween(User shop, com.example.backend.model.OrderStatus status,
+            java.time.LocalDateTime start, java.time.LocalDateTime end);
+
     boolean existsByOrderCode(String orderCode);
 }

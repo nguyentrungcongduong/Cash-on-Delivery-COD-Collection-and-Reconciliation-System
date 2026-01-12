@@ -88,7 +88,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, role }) => {
         if (key === 'logout') {
             handleLogout();
         } else if (key === 'profile') {
-            navigate('/profile');
+            // Navigate based on role
+            if (role === 'SHOP') navigate('/shop/profile');
+            else if (role === 'SHIPPER') navigate('/shipper/profile');
+            else if (role === 'ADMIN') navigate('/admin/profile');
+            else navigate('/profile');
         } else if (key === 'settings') {
             navigate('/settings');
         }

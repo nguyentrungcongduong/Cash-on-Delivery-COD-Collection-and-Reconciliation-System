@@ -24,6 +24,7 @@ import {
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { Order, ShopStats } from '../../types';
 import { orderService } from '../../services/orderService';
+import { shopService } from '../../services/shopService';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
@@ -47,7 +48,10 @@ const ShopDashboard: React.FC = () => {
         overdueSettlements: 0,
     });
     const [orders, setOrders] = useState<Order[]>([]);
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [revenueChartData, setRevenueChartData] = useState<any[]>([]);
+    const [ordersChartData, setOrdersChartData] = useState<any[]>([]);
+
+    // ... logic ...
 
     useEffect(() => {
         fetchDashboardData();
@@ -56,24 +60,19 @@ const ShopDashboard: React.FC = () => {
     const fetchDashboardData = async () => {
         setLoading(true);
         try {
-            // Fetch stats
-            const statsData = await orderService.getOrderStats();
-            setStats(statsData);
-
-            // Fetch recent orders
-            const ordersData = await orderService.getOrders({ page: 0, size: 10 });
-            setOrders(ordersData.content);
-
-            // Mock chart data (replace with real API call)
-            setChartData([
-                { date: '01/01', orders: 45, revenue: 25000000, successRate: 92 },
-                { date: '02/01', orders: 52, revenue: 28000000, successRate: 94 },
-                { date: '03/01', orders: 48, revenue: 26500000, successRate: 91 },
-                { date: '04/01', orders: 61, revenue: 32000000, successRate: 95 },
-                { date: '05/01', orders: 55, revenue: 29000000, successRate: 93 },
-                { date: '06/01', orders: 67, revenue: 35000000, successRate: 96 },
-                { date: '07/01', orders: 58, revenue: 31000000, successRate: 94 },
+            // Fetch stats and charts in parallel
+            const [statsData, ordersResp, revenue7Days, orders7Days] = await Promise.all([
+                orderService.getOrderStats(),
+                orderService.getOrders({ page: 0, size: 10 }),
+                shopService.getRevenue7Days(),
+                shopService.getOrders7Days()
             ]);
+
+            setStats(statsData);
+            setOrders(ordersResp.content);
+            setRevenueChartData(revenue7Days);
+            setOrdersChartData(orders7Days);
+
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
         } finally {
@@ -286,7 +285,7 @@ const ShopDashboard: React.FC = () => {
                 <Col xs={24} lg={12}>
                     <Card title="Doanh thu 7 ngày qua" variant="borderless">
                         <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={chartData}>
+                            <LineChart data={revenueChartData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
                                 <YAxis />
@@ -307,13 +306,13 @@ const ShopDashboard: React.FC = () => {
                 <Col xs={24} lg={12}>
                     <Card title="Số đơn hàng 7 ngày qua" variant="borderless">
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={chartData}>
+                            <BarChart data={ordersChartData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="orders" fill="#52c41a" name="Số đơn" />
+                                <Bar dataKey="totalOrders" fill="#52c41a" name="Số đơn" />
                             </BarChart>
                         </ResponsiveContainer>
                     </Card>

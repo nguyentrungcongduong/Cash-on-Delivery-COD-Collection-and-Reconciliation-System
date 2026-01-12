@@ -76,6 +76,67 @@ public class ShopController {
                 return ResponseEntity.ok(orderService.getShopDashboardStats(shop));
         }
 
+        @GetMapping("/dashboard/revenue-7-days")
+        public ResponseEntity<List<Map<String, Object>>> getRevenueLast7Days(@AuthenticationPrincipal User shop) {
+                LocalDateTime end = LocalDateTime.now();
+                LocalDateTime start = end.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+
+                List<Order> orders = orderRepository.findByShopAndStatusAndDeliveredAtBetween(
+                                shop,
+                                com.example.backend.model.OrderStatus.DELIVERED_SUCCESS,
+                                start,
+                                end);
+
+                List<Map<String, Object>> response = new java.util.ArrayList<>();
+                java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+                for (int i = 0; i < 7; i++) {
+                        java.time.LocalDate date = start.toLocalDate().plusDays(i);
+                        double dailyRevenue = orders.stream()
+                                        .filter(o -> o.getDeliveredAt() != null
+                                                        && o.getDeliveredAt().toLocalDate().equals(date))
+                                        .mapToDouble(Order::getCodAmount)
+                                        .sum();
+
+                        Map<String, Object> entry = new HashMap<>();
+                        entry.put("date", date.format(dtf));
+                        entry.put("revenue", dailyRevenue);
+                        response.add(entry);
+                }
+
+                return ResponseEntity.ok(response);
+        }
+
+        @GetMapping("/dashboard/orders-7-days")
+        public ResponseEntity<List<Map<String, Object>>> getOrdersLast7Days(@AuthenticationPrincipal User shop) {
+                LocalDateTime end = LocalDateTime.now();
+                LocalDateTime start = end.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+
+                List<Order> orders = orderRepository.findByShopAndStatusAndDeliveredAtBetween(
+                                shop,
+                                com.example.backend.model.OrderStatus.DELIVERED_SUCCESS,
+                                start,
+                                end);
+
+                List<Map<String, Object>> response = new java.util.ArrayList<>();
+                java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+                for (int i = 0; i < 7; i++) {
+                        java.time.LocalDate date = start.toLocalDate().plusDays(i);
+                        long dailyOrders = orders.stream()
+                                        .filter(o -> o.getDeliveredAt() != null
+                                                        && o.getDeliveredAt().toLocalDate().equals(date))
+                                        .count();
+
+                        Map<String, Object> entry = new HashMap<>();
+                        entry.put("date", date.format(dtf));
+                        entry.put("totalOrders", dailyOrders);
+                        response.add(entry);
+                }
+
+                return ResponseEntity.ok(response);
+        }
+
         @PostMapping("/orders")
         public ResponseEntity<Order> createOrder(
                         @RequestBody CreateOrderRequest request,
@@ -223,5 +284,47 @@ public class ShopController {
                                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=shop-cod-report.pdf")
                                 .contentType(MediaType.APPLICATION_PDF)
                                 .body(data);
+        }
+
+        @GetMapping("/profile")
+        public ResponseEntity<com.example.backend.dto.ShopProfileResponse> getProfile(
+                        @AuthenticationPrincipal User shop) {
+                com.example.backend.dto.ShopProfileResponse.BankAccountInfo bankInfo = new com.example.backend.dto.ShopProfileResponse.BankAccountInfo(
+                                shop.getBankName(),
+                                shop.getAccountNumber(),
+                                shop.getAccountHolder(),
+                                shop.getBankBranch());
+
+                return ResponseEntity.ok(new com.example.backend.dto.ShopProfileResponse(
+                                shop.getName(),
+                                shop.getId().toString(),
+                                shop.getPhone(),
+                                shop.getEmail(),
+                                shop.getAddress(),
+                                shop.getCreatedAt() != null ? shop.getCreatedAt().toString() : "",
+                                bankInfo));
+        }
+
+        @PutMapping("/profile")
+        public ResponseEntity<com.example.backend.dto.ShopProfileResponse> updateProfile(
+                        @RequestBody com.example.backend.dto.ShopProfileUpdateRequest request,
+                        @AuthenticationPrincipal User shop) {
+
+                if (request.getShopName() != null)
+                        shop.setName(request.getShopName());
+                if (request.getPhone() != null)
+                        shop.setPhone(request.getPhone());
+                if (request.getAddress() != null)
+                        shop.setAddress(request.getAddress());
+
+                if (request.getBankAccount() != null) {
+                        shop.setBankName(request.getBankAccount().getBankName());
+                        shop.setAccountNumber(request.getBankAccount().getAccountNumber());
+                        shop.setAccountHolder(request.getBankAccount().getAccountHolder());
+                        shop.setBankBranch(request.getBankAccount().getBranch());
+                }
+
+                User updatedShop = userRepository.save(shop);
+                return getProfile(updatedShop);
         }
 }

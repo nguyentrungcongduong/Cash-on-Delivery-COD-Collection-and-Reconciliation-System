@@ -9,6 +9,7 @@ import CreateOrder from './components/Shop/CreateOrder';
 import OrderManagement from './components/Shop/OrderManagement';
 import ShopSettlement from './components/Shop/ShopSettlement';
 import ShopReport from './components/Shop/ShopReport';
+import ShopProfile from './components/Shop/ShopProfile';
 import ShipperDashboard from './components/Shipper/ShipperDashboard';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import AdminSettlement from './components/Admin/AdminSettlement';
@@ -80,6 +81,7 @@ const App: React.FC = () => {
                     <Route path="orders" element={<OrderManagement />} />
                     <Route path="settlements" element={<ShopSettlement />} />
                     <Route path="reports" element={<ShopReport />} />
+                    <Route path="profile" element={<ShopProfile />} />
                     <Route path="*" element={<Navigate to="/shop/dashboard" replace />} />
                   </Routes>
                 </MainLayout>

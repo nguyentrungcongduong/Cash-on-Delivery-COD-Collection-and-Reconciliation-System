@@ -123,3 +123,19 @@ export interface ChartData {
   revenue: number;
   successRate: number;
 }
+export interface BankAccountInfo {
+  bankName: string;
+  accountNumber: string;
+  accountHolder: string;
+  branch?: string;
+}
+
+export interface ShopProfileResponse {
+  shopName: string;
+  shopCode: string;
+  phone: string;
+  email: string;
+  address: string;
+  createdAt: string;
+  bankAccount?: BankAccountInfo;
+}

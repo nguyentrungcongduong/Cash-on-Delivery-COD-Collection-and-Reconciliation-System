@@ -116,7 +116,7 @@ const AdminOrderManagement: React.FC = () => {
         {
             title: 'Thao tác',
             key: 'action',
-            render: (record: any) => (
+            render: (_record: any) => (
                 <Tooltip title="Xem chi tiết (Tính năng đang phát triển)">
                     <Button icon={<EyeOutlined />} type="text" />
                 </Tooltip>
